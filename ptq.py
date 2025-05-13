@@ -21,12 +21,13 @@ log: Logger = utils.get_logger("spinquant")
 
 
 def train() -> None:
-    dist.init_process_group(backend="nccl", timeout=datetime.timedelta(hours=8))
+    # dist.init_process_group(backend="nccl", timeout=datetime.timedelta(hours=8))
     model_args, training_args, ptq_args = process_args_ptq()
-    local_rank = utils.get_local_rank()
+    # local_rank = utils.get_local_rank()
+    local_rank = 0
 
     log.info("the rank is {}".format(local_rank))
-    torch.distributed.barrier()
+    # torch.distributed.barrier()
 
     config = transformers.AutoConfig.from_pretrained(
         model_args.input_model, token=model_args.access_token
@@ -74,7 +75,7 @@ def train() -> None:
 
     dataset_ppl = eval_utils.evaluator(model, testloader, utils.DEV, ptq_args)
     log.info("wiki2 ppl is: {}".format(dataset_ppl))
-    dist.barrier()
+    # dist.barrier()
 
 
 if __name__ == "__main__":

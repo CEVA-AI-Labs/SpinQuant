@@ -34,7 +34,7 @@ def ptq_model(args, model, model_args=None):
         for name in qlayers:
             if "down_proj" in name:
                 had_K, K = hadamard_utils.get_hadK(model.config.intermediate_size)
-                qlayers[name].online_full_had = True
+                qlayers[name].online_full_had = False
                 qlayers[name].had_K = had_K
                 qlayers[name].K = K
                 qlayers[name].fp32_had = args.fp32_had
@@ -87,6 +87,7 @@ def ptq_model(args, model, model_args=None):
                     save_dict, group_size=args.w_groupsize
                 )
             torch.save(save_dict, args.save_qmodel_path)
+            # torch.save(save_dict["model"], args.save_qmodel_path) # Eli export method
 
     # Add Input Quantization
     if args.a_bits < 16 or args.v_bits < 16:

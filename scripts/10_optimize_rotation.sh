@@ -9,9 +9,9 @@
 # nproc_per_node indicates the number of GPUs per node to employ.
 torchrun --nnodes=1 --nproc_per_node=8 optimize_rotation.py \
 --input_model $1  \
---output_rotation_path "your_path" \
---output_dir "your_output_path/" \
---logging_dir "your_log_path/" \
+--output_rotation_path "output_rotation_gptq_wgroup_e2" \
+--output_dir "output/" \
+--logging_dir "logging/" \
 --model_max_length 2048 \
 --fp16 False \
 --bf16 True \
@@ -23,14 +23,16 @@ torchrun --nnodes=1 --nproc_per_node=8 optimize_rotation.py \
 --lr_scheduler_type "cosine" \
 --gradient_checkpointing True \
 --save_safetensors False \
---max_steps 100 \
+--max_steps 2 \
 --w_bits $2 \
 --a_bits $3 \
 --k_bits $4 \
 --v_bits $4 \
---w_clip \
 --a_asym \
 --k_asym \
 --v_asym \
 --k_groupsize 128 \
 --v_groupsize 128 \
+--w_groupsize 128 \
+--a_groupsize 128 \
+--w_clip

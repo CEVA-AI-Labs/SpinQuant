@@ -95,9 +95,9 @@ def rotate_mlp_output(layer, R1):
     dtype = W.weight.data.dtype
     W_ = W.weight.data.to(device="cuda", dtype=torch.float64)
     W.weight.data = torch.matmul(R1.T, W_).to(device="cpu", dtype=dtype)
-    apply_exact_had_to_linear(
-        W, had_dim=-1, output=False
-    )  # apply exact (inverse) hadamard on the weights of mlp output
+    # apply_exact_had_to_linear(
+    #     W, had_dim=-1, output=False
+    # )  # apply exact (inverse) hadamard on the weights of mlp output
     if W.bias is not None:
         b = W.bias.data.to(device="cuda", dtype=torch.float64)
         W.bias.data = torch.matmul(R1.T, b).to(device="cpu", dtype=dtype)
@@ -159,6 +159,7 @@ class QKRotationWrapper(torch.nn.Module):
         ), f"Only power of 2 head_dim is supported for K-cache Quantization!"
         self.func = func
         self.k_quantizer = quant_utils.ActQuantizer()
+        self.q_quantizer = quant_utils.ActQuantizer()
         self.k_bits = 16
         if kwargs is not None:
             assert kwargs["k_groupsize"] in [
@@ -175,12 +176,18 @@ class QKRotationWrapper(torch.nn.Module):
                 sym=self.k_sym,
                 clip_ratio=self.k_clip_ratio,
             )
+            self.q_quantizer.configure(
+                bits=self.k_bits,
+                groupsize=-1,  # we put -1 to be toke-wise quantization and handle head-wise quantization by ourself
+                sym=self.k_sym,
+                clip_ratio=self.k_clip_ratio,
+            )
 
     def forward(self, *args, **kwargs):
         q, k = self.func(*args, **kwargs)
         dtype = q.dtype
-        q = (HadamardTransform.apply(q.float()) / math.sqrt(q.shape[-1])).to(dtype)
-        k = (HadamardTransform.apply(k.float()) / math.sqrt(k.shape[-1])).to(dtype)
+        # q = (HadamardTransform.apply(q.float()) / math.sqrt(q.shape[-1])).to(dtype)
+        # k = (HadamardTransform.apply(k.float()) / math.sqrt(k.shape[-1])).to(dtype)
         (bsz, num_heads, seq_len, head_dim) = k.shape
 
         if self.k_groupsize == -1:  # token-wise quantization
@@ -192,16 +199,35 @@ class QKRotationWrapper(torch.nn.Module):
                 .transpose(1, 2)
                 .to(q)
             )
+            # q quantization
+            token_wise_q = q.transpose(1, 2).reshape(-1, num_heads * head_dim)
+            self.q_quantizer.find_params(token_wise_q)
+            q = (
+                self.q_quantizer(token_wise_q)
+                .reshape((bsz, seq_len, num_heads, head_dim))
+                .transpose(1, 2)
+                .to(q)
+            )
         else:  # head-wise quantization
-            per_head_k = k.view(-1, head_dim)
+            # per_head_k = k.view(-1, head_dim)
+            per_head_k = k.reshape(-1, head_dim)
             self.k_quantizer.find_params(per_head_k)
             k = (
                 self.k_quantizer(per_head_k)
                 .reshape((bsz, num_heads, seq_len, head_dim))
                 .to(q)
             )
+            # q quantization
+            per_head_q = q.reshape(-1, head_dim)
+            self.q_quantizer.find_params(per_head_q)
+            q = (
+                self.q_quantizer(per_head_q)
+                .reshape((bsz, num_heads, seq_len, head_dim))
+                .to(q)
+            )
 
         self.k_quantizer.free()
+        self.q_quantizer.free()
 
         return q, k
 

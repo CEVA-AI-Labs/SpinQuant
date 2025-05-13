@@ -145,20 +145,33 @@ class GPTQ:
 
         if actorder:
             Q = Q[:, invperm]
+            if static_groups:
+                Scale = Scale[:, invperm]  # needed for static_groups
+                W_int = W_int[:, invperm]  # for Eli export
 
         if export_to_et:
             self.layer.register_buffer(
                 "int_weight", W_int.reshape(self.layer.weight.shape)
             )
             self.layer.register_buffer("scale", Scale)
+
+        # Eli's export
+        # self.layer.register_buffer("int_weight", W_int.reshape(self.layer.weight.shape).to(torch.float16))
+        # self.layer.register_buffer("maxq", self.quantizer.maxq)
+        # self.layer.register_buffer("scale", Scale.to(torch.float16))
+
         self.layer.weight.data = Q.reshape(self.layer.weight.shape).to(
             self.layer.weight.data.dtype
         )
+        # Export to LiteML - works only for symmetric quantization
+        if groupsize > -1:
+            self.quantizer.scale = Scale[:, torch.arange(0, W.shape[1], groupsize)]
+            self.quantizer.zero = torch.zeros_like(self.quantizer.scale)
+
         if torch.any(torch.isnan(self.layer.weight.data)):
             logging.warning("NaN in weights")
-
             pprint.pprint(
-                self.quantizer.bits, self.quantizer.scale, self.quantizer.zero_point
+                self.quantizer.bits, self.quantizer.scale, self.quantizer.zero
             )
             raise ValueError("NaN in weights")
 
@@ -281,7 +294,7 @@ def gptq_fwrd(model, dataloader, dev, args):
                     percdamp=args.percdamp,
                     groupsize=layer_w_groupsize,
                     actorder=args.act_order,
-                    static_groups=False,
+                    static_groups=True,
                     export_to_et=args.export_to_et,
                 )
                 quantizers["model.layers.%d.%s" % (i, name)] = gptq[name].quantizer
@@ -354,6 +367,10 @@ def rtn_fwrd(model, dev, args, custom_layers=None):
             if args.export_to_et:
                 subset[name].register_buffer("int_weight", int_weight)
                 subset[name].register_buffer("scale", scale)
+            # Export to LiteML - works only for symmetric quantization
+            if w_groupsize > -1:
+                quantizer.scale = quantizer.scale[:, torch.arange(0, W.shape[1], w_groupsize)]
+                quantizer.zero = torch.zeros_like(quantizer.scale)
             quantizers["model.layers.%d.%s" % (i, name)] = quantizer.cpu()
         layers[i] = layer.cpu()
         torch.cuda.empty_cache()
