@@ -162,6 +162,13 @@ def parser_gen():
         help="Use INT8 for Down Projection! If this set, both weights and activations of this layer will be in INT8",
     )
 
+    parser.add_argument(
+        "--int8_layers",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Use INT8 for a set of layers. If this set, both weights and activations of this layer will be in INT8",
+    )
+
     # KV-Cache Quantization Arguments
     parser.add_argument(
         "--v_bits",

@@ -94,9 +94,9 @@ def export_with_TrueQuantRMSNorm(state_dict, group_size):
     liteml_state_dict = OrderedDict(sorted(liteml_state_dict.items()))
     return liteml_state_dict
 
-spinquant_path = 'saved_models/spinquant_gptq_group128_chat.pth'
-group_size = 128
+spinquant_path = 'saved_models/w4a8kv8_group32_custom8_b012_down_v.pth'
+group_size = 32
 state_dict = torch.load(spinquant_path)
-out_state_dict = export_with_TrueQuantRMSNorm(state_dict, group_size)
-torch.save(out_state_dict, 'saved_models/liteml_spinquant_gptq_group128_TrueQuantRMSNorm_chat.pth')
+out_state_dict = export2(state_dict, group_size)
+torch.save(out_state_dict, 'saved_models/liteml_w4a8kv8_group32_custom8_b012_down_v.pth')
 print('Done')
