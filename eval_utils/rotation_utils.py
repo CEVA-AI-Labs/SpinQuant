@@ -189,6 +189,7 @@ class QKRotationWrapper(torch.nn.Module):
         # q = (HadamardTransform.apply(q.float()) / math.sqrt(q.shape[-1])).to(dtype)
         # k = (HadamardTransform.apply(k.float()) / math.sqrt(k.shape[-1])).to(dtype)
         (bsz, num_heads, seq_len, head_dim) = k.shape
+        num_heads_q, head_dim_q = q.shape[1], q.shape[3]
 
         if self.k_groupsize == -1:  # token-wise quantization
             token_wise_k = k.transpose(1, 2).reshape(-1, num_heads * head_dim)
@@ -200,11 +201,11 @@ class QKRotationWrapper(torch.nn.Module):
                 .to(q)
             )
             # q quantization
-            token_wise_q = q.transpose(1, 2).reshape(-1, num_heads * head_dim)
+            token_wise_q = q.transpose(1, 2).reshape(-1, num_heads_q * head_dim_q)
             self.q_quantizer.find_params(token_wise_q)
             q = (
                 self.q_quantizer(token_wise_q)
-                .reshape((bsz, seq_len, num_heads, head_dim))
+                .reshape((bsz, seq_len, num_heads_q, head_dim_q))
                 .transpose(1, 2)
                 .to(q)
             )
@@ -218,11 +219,11 @@ class QKRotationWrapper(torch.nn.Module):
                 .to(q)
             )
             # q quantization
-            per_head_q = q.reshape(-1, head_dim)
+            per_head_q = q.reshape(-1, head_dim_q)
             self.q_quantizer.find_params(per_head_q)
             q = (
                 self.q_quantizer(per_head_q)
-                .reshape((bsz, num_heads, seq_len, head_dim))
+                .reshape((bsz, num_heads_q, seq_len, head_dim_q))
                 .to(q)
             )
 

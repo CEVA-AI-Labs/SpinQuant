@@ -183,6 +183,20 @@ class GPTQ:
         utils.cleanup_memory(verbos=False)
 
 
+def is_int8_layer(name, decoder_id):
+    # Good - 5.497 ppl
+    # blocks_int8 = [0, 1, 2, 3, 30, 31]
+    # layers_int8 = ['down_proj', 'o_proj', 'v_proj']
+    blocks_int8 = [0, 1, 2]
+    layers_int8 = ['down_proj', 'v_proj']
+    if decoder_id in blocks_int8:
+        return True
+    for lyr_name in layers_int8:
+        if lyr_name in name:
+            return True
+    return False
+
+
 @torch.no_grad()
 def gptq_fwrd(model, dataloader, dev, args):
     """
@@ -261,6 +275,8 @@ def gptq_fwrd(model, dataloader, dev, args):
                     continue
                 if args.int8_down_proj and "down_proj" in name:
                     layer_weight_bits = 8
+                if args.int8_layers and is_int8_layer(name, i):
+                    layer_weight_bits = 8
                 gptq[name] = GPTQ(subset[name])
                 gptq[name].quantizer = quant_utils.WeightQuantizer()
                 gptq[name].quantizer.configure(
@@ -294,7 +310,7 @@ def gptq_fwrd(model, dataloader, dev, args):
                     percdamp=args.percdamp,
                     groupsize=layer_w_groupsize,
                     actorder=args.act_order,
-                    static_groups=True,
+                    static_groups=False,
                     export_to_et=args.export_to_et,
                 )
                 quantizers["model.layers.%d.%s" % (i, name)] = gptq[name].quantizer

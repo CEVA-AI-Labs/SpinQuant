@@ -1,9 +1,10 @@
 import torch
+import argparse
 from collections import OrderedDict
 
 
 def export(state_dict, group_size):
-    """ Exports state_dict to LiteML format."""
+    """ Exports state_dict to LiteML format. Used to load the state dict outside LiteML's RetrainerModel class"""
     liteml_state_dict = dict()
     for key, value in state_dict['w_quantizers'].items():
         prefix = key.split('.module')[0]
@@ -32,7 +33,7 @@ def export(state_dict, group_size):
     return liteml_state_dict
 
 
-def export2(state_dict, group_size):
+def export_retrainer_model(state_dict, group_size):
     """
     Exports state_dict to LiteML format where the state_dict's path is provided in the config.yaml file, thus
     we remove the ._model._model prefix compared to the export function above.
@@ -63,8 +64,7 @@ def export2(state_dict, group_size):
     return liteml_state_dict
 
 
-
-def export_with_TrueQuantRMSNorm(state_dict, group_size):
+def export_retrainer_model_TrueQuantRMSNorm(state_dict, group_size):
     """
     Exports state_dict to LiteML format for a model that uses TrueQuantRMSNorm layer.
     """
@@ -94,9 +94,38 @@ def export_with_TrueQuantRMSNorm(state_dict, group_size):
     liteml_state_dict = OrderedDict(sorted(liteml_state_dict.items()))
     return liteml_state_dict
 
-spinquant_path = 'saved_models/spinquant_gptq_group128_chat.pth'
-group_size = 128
-state_dict = torch.load(spinquant_path)
-out_state_dict = export_with_TrueQuantRMSNorm(state_dict, group_size)
-torch.save(out_state_dict, 'saved_models/liteml_spinquant_gptq_group128_TrueQuantRMSNorm_chat.pth')
-print('Done')
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Export SpinQuant's state dict to LiteML format for Llama model.")
+    parser.add_argument('--group_size', type=int, default=128, help='group size used for activations and weights in group quantization')
+    parser.add_argument('--spinquant_path', type=str, help="path to SpinQuant's state dict file")
+    parser.add_argument('--liteml_path', type=str, help="path to save the exported state dict file in LiteML format")
+    parser.add_argument(
+        "--true_quant",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help='Export the model in a compatible format to "TrueQuant" mode of LiteML',
+    )
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
+    spinquant_path = args.spinquant_path
+    liteml_path = args.liteml_path
+    group_size = args.group_size
+    true_quant = args.true_quant
+    print(f"Loading SpinQuant's state dict from {spinquant_path}")
+    state_dict = torch.load(spinquant_path)
+    if true_quant:
+        print('Exporting to LiteML format in "TrueQuant" mode')
+        out_state_dict = export_retrainer_model_TrueQuantRMSNorm(state_dict, group_size)
+    else:
+        print("Exporting to LiteML format")
+        out_state_dict = export_retrainer_model(state_dict, group_size)
+    torch.save(out_state_dict, liteml_path)
+    print(f'Finished exporting file {args.liteml_path}')
+
+
+if __name__ == '__main__':
+    main()
