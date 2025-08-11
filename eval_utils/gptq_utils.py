@@ -310,7 +310,7 @@ def gptq_fwrd(model, dataloader, dev, args):
                     percdamp=args.percdamp,
                     groupsize=layer_w_groupsize,
                     actorder=args.act_order,
-                    static_groups=True,
+                    static_groups=False,
                     export_to_et=args.export_to_et,
                 )
                 quantizers["model.layers.%d.%s" % (i, name)] = gptq[name].quantizer
