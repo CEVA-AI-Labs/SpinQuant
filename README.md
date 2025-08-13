@@ -30,7 +30,7 @@ The following command applies SpinQuant algorithm using GPTQ and weight clipping
 It evaluates the perplexity on WikiText2 dataset and saves the model with the modified weights and scales in the path provided by save_qmodel_path argument.
 
 ```
-python ptq.py --input_model meta-llama/Llama-2-7b-hf --do_train False --do_eval True --per_device_eval_batch_size 4 --model_max_length 2048 --fp16 True --bf16 False --save_safetensors False --w_bits 4 --a_bits 8 --k_bits 8 --v_bits 8 --k_groupsize 128 --v_groupsize 128 --w_groupsize 128 --a_groupsize 128 --rotate --w_clip --save_qmodel_path "./saved_models/spinquant_gptq_group128.pth.pth"
+python ptq.py --input_model meta-llama/Llama-2-7b-hf --do_train False --do_eval True --per_device_eval_batch_size 4 --model_max_length 2048 --fp16 True --bf16 False --save_safetensors False --w_bits 4 --a_bits 8 --k_bits 8 --v_bits 8 --k_groupsize 128 --v_groupsize 128 --w_groupsize 128 --a_groupsize 128 --rotate --w_clip --save_qmodel_path "./saved_models/spinquant_gptq_group128.pth"
 ```
 
 ## Exporting the state dict
