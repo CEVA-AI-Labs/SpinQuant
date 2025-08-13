@@ -147,7 +147,7 @@ class GPTQ:
             Q = Q[:, invperm]
             if static_groups:
                 Scale = Scale[:, invperm]  # needed for static_groups
-                W_int = W_int[:, invperm]  # for Eli export
+                W_int = W_int[:, invperm]  # for old export format
 
         if export_to_et:
             self.layer.register_buffer(
@@ -155,10 +155,10 @@ class GPTQ:
             )
             self.layer.register_buffer("scale", Scale)
 
-        # Eli's export
-        # self.layer.register_buffer("int_weight", W_int.reshape(self.layer.weight.shape).to(torch.float16))
-        # self.layer.register_buffer("maxq", self.quantizer.maxq)
-        # self.layer.register_buffer("scale", Scale.to(torch.float16))
+        # Old export format
+        self.layer.register_buffer("int_weight", W_int.reshape(self.layer.weight.shape).to(torch.float16))
+        self.layer.register_buffer("maxq", self.quantizer.maxq)
+        self.layer.register_buffer("scale", Scale.to(torch.float16))
 
         self.layer.weight.data = Q.reshape(self.layer.weight.shape).to(
             self.layer.weight.data.dtype
