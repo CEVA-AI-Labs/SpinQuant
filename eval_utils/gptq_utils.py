@@ -156,9 +156,9 @@ class GPTQ:
             self.layer.register_buffer("scale", Scale)
 
         # Old export format
-        self.layer.register_buffer("int_weight", W_int.reshape(self.layer.weight.shape).to(torch.float16))
-        self.layer.register_buffer("maxq", self.quantizer.maxq)
-        self.layer.register_buffer("scale", Scale.to(torch.float16))
+        # self.layer.register_buffer("int_weight", W_int.reshape(self.layer.weight.shape).to(torch.float16))
+        # self.layer.register_buffer("maxq", self.quantizer.maxq)
+        # self.layer.register_buffer("scale", Scale.to(torch.float16))
 
         self.layer.weight.data = Q.reshape(self.layer.weight.shape).to(
             self.layer.weight.data.dtype
