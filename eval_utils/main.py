@@ -87,7 +87,7 @@ def ptq_model(args, model, model_args=None):
                     save_dict, group_size=args.w_groupsize
                 )
             torch.save(save_dict, args.save_qmodel_path)
-            # torch.save(save_dict["model"], args.save_qmodel_path) # Eli export method
+            # torch.save(save_dict["model"], args.save_qmodel_path)  # Old export format
 
     # Add Input Quantization
     if args.a_bits < 16 or args.v_bits < 16:
