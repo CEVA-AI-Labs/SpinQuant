@@ -9,12 +9,12 @@ conda create -n SpinQuant python=3.9
    
 Install pytorch 2.2 with cuda 11.8
 ```
-pip install torch==2.2.0 torchvision==0.17.0 torchaudio==2.2.0
+pip install torch==2.2.0 torchvision==0.17.0 torchaudio==2.2.0 --extra-index-url https://download.pytorch.org/whl/cu118
 ```
 Follow the installation instructions in (https://github.com/facebookresearch/SpinQuant), summarized below:
 
 ```
-git clone https://github.com/facebookresearch/SpinQuant.git
+git clone https://github.com/CEVA-AI-Labs/SpinQuant
 cd SpinQuant
 pip install -r requirement.txt
 git clone https://github.com/Dao-AILab/fast-hadamard-transform.git
