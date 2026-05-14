@@ -3,16 +3,23 @@
 # LiteML state dict export commands for Llama model family.
 # Uncomment the model(s) you want to export and run this script.
 
-# Llama-2-7b
+# Llama-2-7b W4A8
 #python liteml_state_dict.py \
 #    --spinquant_path saved_models/llama-2-7b/llama-2-7b-spinquant_gptq_group128.pth \
 #    --liteml_path saved_models/llama-2-7b/liteml_llama-2-7b-spinquant_gptq_group128_fused_lm_head.pth \
 #    --fuse_lm_head \
 #    --group_size 128
+# python liteml_state_dict.py \
+#     --spinquant_path saved_models/llama-2-7b/llama-2-7b-spinquant_gptq_group128.pth \
+#     --liteml_path saved_models/llama-2-7b/liteml_llama-2-7b-spinquant_gptq_group128.pth \
+#     --group_size 128
+
+# Llama-2-7b W8A8
 python liteml_state_dict.py \
-    --spinquant_path saved_models/llama-2-7b/llama-2-7b-spinquant_gptq_group128.pth \
-    --liteml_path saved_models/llama-2-7b/liteml_llama-2-7b-spinquant_gptq_group128.pth \
-    --group_size 128
+   --spinquant_path saved_models/llama-2-7b/llama-2-7b-spinquant_w8a8_gptq_group128.pth \
+   --liteml_path /AI_Labs/spinquant_models/Llama-2-7b-hf/liteml_llama-2-7b-spinquant_w8a8_gptq_group128_fused_lm_head.pth \
+   --fuse_lm_head \
+   --group_size 128
 
 
 # Meta-Llama-3-8B
