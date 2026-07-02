@@ -9,9 +9,22 @@
 #    --liteml_path saved_models/llama-2-7b/liteml_llama-2-7b-spinquant_gptq_group128_fused_lm_head.pth \
 #    --fuse_lm_head \
 #    --group_size 128
+#python liteml_state_dict.py \
+#    --spinquant_path saved_models/llama-2-7b/llama-2-7b-spinquant_gptq_group128.pth \
+#    --liteml_path saved_models/llama-2-7b/liteml_llama-2-7b-spinquant_gptq_group128.pth \
+#    --group_size 128
+
+
+# Llama-2-7b-chat
+#python liteml_state_dict.py \
+#    --spinquant_path saved_models/llama-2-7b-chat/llama-2-7b-chat-spinquant_gptq_group128.pth \
+#    --liteml_path saved_models/llama-2-7b-chat/liteml_llama-2-7b-chat-spinquant_gptq_group128_fused_lm_head.pth \
+#    --fuse_lm_head \
+#    --group_size 128
 python liteml_state_dict.py \
-    --spinquant_path saved_models/llama-2-7b/llama-2-7b-spinquant_gptq_group128.pth \
-    --liteml_path saved_models/llama-2-7b/liteml_llama-2-7b-spinquant_gptq_group128.pth \
+    --spinquant_path saved_models/llama-2-7b-chat/llama-2-7b-chat-spinquant_gptq_group128.pth \
+    --liteml_path saved_models/llama-2-7b-chat/liteml_llama-2-7b-chat-spinquant_gptq_group128.pth \
+    --fuse_lm_head \
     --group_size 128
 
 

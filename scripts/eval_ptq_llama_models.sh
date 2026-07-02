@@ -74,8 +74,9 @@ run_qwen() {
 
 run_all() {
     # Llama models
-    run_llama "meta-llama/Llama-2-7b-hf"     "saved_models/llama-2-7b/llama-2-7b-spinquant_gptq_group128.pth"
-    run_llama "meta-llama/Meta-Llama-3-8B"    "saved_models/llama-3-8b/llama-3-8b-spinquant_gptq_group128.pth"
+    run_llama "meta-llama/Llama-2-7b-hf"          "saved_models/llama-2-7b/llama-2-7b-spinquant_gptq_group128.pth"
+    run_llama "meta-llama/Llama-2-7b-chat-hf"     "saved_models/llama-2-7b-chat/llama-2-7b-chat-spinquant_gptq_group128.pth"
+    run_llama "meta-llama/Meta-Llama-3-8B"         "saved_models/llama-3-8b/llama-3-8b-spinquant_gptq_group128.pth"
     run_llama "meta-llama/Llama-3.1-8B"       "saved_models/llama-3-1-8b/llama-3-1-8b-spinquant_gptq_group128.pth"
     run_llama "meta-llama/Llama-3.2-1B"       "saved_models/llama-3-2-1b/llama-3-2-1b-spinquant_gptq_kv64_group128.pth"  64  128
     run_llama "meta-llama/Llama-3.2-3B"       "saved_models/llama-3-2-3b/llama3-2-3b-spinquant_gptq_group128.pth"
@@ -88,7 +89,9 @@ run_all() {
 
 case "$1" in
     "Llama-2-7b-hf")
-        run_llama "meta-llama/Llama-2-7b-hf"  "saved_models/llama-2-7b/llama-2-7b-spinquant_gptq_group128.pth" ;;
+        run_llama "meta-llama/Llama-2-7b-hf"       "saved_models/llama-2-7b/llama-2-7b-spinquant_gptq_group128.pth" ;;
+    "Llama-2-7b-chat-hf")
+        run_llama "meta-llama/Llama-2-7b-chat-hf"  "saved_models/llama-2-7b-chat/llama-2-7b-chat-spinquant_gptq_group128.pth" ;;
     "Meta-Llama-3-8B")
         run_llama "meta-llama/Meta-Llama-3-8B" "saved_models/llama-3-8b/llama-3-8b-spinquant_gptq_group128.pth" ;;
     "Llama-3.1-8B")
@@ -107,7 +110,7 @@ case "$1" in
         run_all ;;
     *)
         echo "Unknown model: $1"
-        echo "Available models: Llama-2-7b-hf, Meta-Llama-3-8B, Llama-3.1-8B, Llama-3.2-1B, Llama-3.2-3B, Qwen2.5-1.5B-Instruct, Qwen2.5-3B, DeepSeek-R1-Distill-Qwen-1.5B"
+        echo "Available models: Llama-2-7b-hf, Llama-2-7b-chat-hf, Meta-Llama-3-8B, Llama-3.1-8B, Llama-3.2-1B, Llama-3.2-3B, Qwen2.5-1.5B-Instruct, Qwen2.5-3B, DeepSeek-R1-Distill-Qwen-1.5B"
         exit 1 ;;
 esac
 
